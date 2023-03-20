@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>event.webinarjam.com</title>
+</head>
+<body>
+	<video controls>
+		<source src="https://dt9xom8irs6kr.cloudfront.net/u275978/1019301-155264627244983102.mp4" type="video/mp4">
+		<source src="video.webm" type="video/webm">
+		<source src="video.ogg" type="video/ogg">
+	</video>
+	<script>
+		document.addEventListener('contextmenu', event => event.preventDefault());
+		document.addEventListener('keydown', function(e) {
+			if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 83 || e.keyCode === 85 || e.keyCode === 117)) {
+				e.preventDefault();
+			}
+		});
+	</script>
+</body>
+</html>
