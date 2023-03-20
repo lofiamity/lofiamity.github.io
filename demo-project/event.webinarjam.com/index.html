@@ -5,16 +5,14 @@
 </head>
 	<style>
 		
-	video::-internal-media-controls-download-button {
-display:none !important;
-}
-
-video::-webkit-media-controls-enclosure {
-overflow:hidden !important;
-}
-
-video::-webkit-media-controls-panel {
-width: calc(100% + 30px) !important; /* Adjust as needed */
+video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
 }
 	</style>
 <body>
