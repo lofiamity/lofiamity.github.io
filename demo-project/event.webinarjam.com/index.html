@@ -4,8 +4,7 @@
 	<title>event.webinarjam.com</title>
 </head>
 	<style>
-		video::-internal-media-controls-overflow-menu-list div {
- {display: none !important;}
+		
 	video::-internal-media-controls-download-button {
 display:none !important;
 }
@@ -24,7 +23,7 @@ width: calc(100% + 30px) !important; /* Adjust as needed */
 
 oncontextmenu = (event) => {};
 
-	<video controls>
+	<video controls controlsList="nodownload">
 		<source src="https://dt9xom8irs6kr.cloudfront.net/u275978/1019301-155264627244983102.mp4" type="video/mp4">
 		<source src="video.webm" type="video/webm">
 		<source src="video.ogg" type="video/ogg">
