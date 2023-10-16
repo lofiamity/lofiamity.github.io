@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Damar Jati">
+    <title>Diffusers - Damar Jati</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Tensor Diffusion</h1>
+    <h4>Text to img</h4>
+    <label for="Negative_prompt">Model:</label>
+    <select class="dropdown">
+        <option value="tensor-diffusion/Dark-Sushi-2.5D" selected>Dark-Sushi-2.5D</option>
+        <option value="tensor-diffusion/chilloutmix-NI">Chilloutmix-NI</option>
+        <option value="tensor-diffusion/anime3d-mix">Anime 3d MIX</option>
+        <option value="tensor-diffusion/anythingV5-Ink">anythingV5-Ink</option>
+        <option value="tensor-diffusion/AsianRealistic_SDLife_ChiasedammeV9.0">AsianRealistic_SDLife_ChiasedammeV9.0</option>
+        <option value="tensor-diffusion/ToonYou-JP">ToonYou-JP</option>
+        <option value="tensor-diffusion/rev-animated">rev-animated</option>
+        <option value="tensor-diffusion/LEOSAMs-HelloWorld-Grain2">LEOSAMs-HelloWorld-Grain2</option>
+        <option value="tensor-diffusion/real-not-real">real-not-real</option>
+        <option value="tensor-diffusion/Ether-Blu-Mix-V5">Ether-Blu-Mix-V5</option>
+        <option value="tensor-diffusion/beautiful-realistic-asians">beautiful-realistic-asians</option>
+    </select>
+    <label for="prompt">Prompt:</label>
+    <input type="text" id="prompt" placeholder="Input teks">
+
+    <label for="Negative_prompt">Negative Prompt:</label>
+    <input type="text" id="Negative_prompt" placeholder="Negative Prompt" value="flat, low contrast, oversaturated, monochrome, blurred, noisy, (lowres), (grain, blurry), (double frame, cropped, out of frame), (low quality), (worst quality), (normal quality), (3D render, cartoon), (watermark, text, logo) (NSFW:1.5)">
+    <button onclick="generateImage()">Generate Image</button>
+    <a id="downloadLink" style="display: none;" download="generated_image.png">
+        <button id="downloadButton" class="download-button">Download</button>
+    </a>
+
+    <div id="loading" style="display: none;">
+        <img src="https://cdn.dribbble.com/users/1035257/screenshots/5048936/media/bb4637b6d6f2151bf3f38935e394d67b.gif" alt="Loading..." />
+    </div>
+    <img id="generatedImage" style="display: none;">
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="author">
+            <p>Made by</p><a href="https://github.com/Damarcreative" class="footer-link">Damar Jati</a>
+        </div>
+        <div class="author">
+            <p>Group WA</p><a href="https://chat.whatsapp.com/DqonrXt195fBy7Qh8pSiMy" class="footer-link">IDN-AI-ART</a>
+        </div>
+        <div class="author">
+            <p>Organization</p><a href="https://huggingface.co/tensor-diffusion" class="footer-link">Tensor Diffusion</a>
+        </div>
+    </div>
+</footer>
+<script src="script.js"</script> 
+</body>
+</html>
