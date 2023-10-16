@@ -58,6 +58,6 @@ async function generateImage() {
 
         } catch (error) {
             // Jika permintaan gagal, tunggu beberapa detik dan coba lagi
-            setTimeout(generateImage, 10000);
+            setTimeout(generateImage, 15000);
         }
     }
