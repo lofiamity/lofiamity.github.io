@@ -21,7 +21,7 @@ async function generateImage() {
         const requestOptions = {
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer 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',
+                'Authorization': 'Bearer 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',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
