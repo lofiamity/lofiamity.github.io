@@ -28,7 +28,7 @@ async function generateImage() {
                 inputs: {
                     "1girl, luminous skin, enchanting gaze, embellished attire, natural lighting, shallow depth of field, romantic setting, dreamy pastel palette, whimsical details, captured on film",
                     parameters: {
-                        negative_prompt: "easynegative",
+                        negative_prompt: Nprompt,
                         num_inference_steps: 50
                     }
                 }
