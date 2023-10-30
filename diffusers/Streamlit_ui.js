@@ -25,13 +25,11 @@ async function generateImage() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                inputs: {
-                    "1girl, luminous skin, enchanting gaze, embellished attire, natural lighting, shallow depth of field, romantic setting, dreamy pastel palette, whimsical details, captured on film",
+                inputs: prompt + " seed:" + acak_str,
                     parameters: {
-                        negative_prompt: Nprompt,
-                        num_inference_steps: 50
+                            negative_prompt: Nprompt,
+                            num_inference_steps: 50
                     }
-                }
 
             }),
         };
