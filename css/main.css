@@ -973,7 +973,8 @@ h2 {
 .section__text {
   font: normal 300 1.6rem/1.6 "Poppins", sans-serif;
   color: #b3bbc3;
-  margin-top: 2.7rem;
+  margin-top: 1rem;
+  margin-bottom: 2.5rem;
 }
 @media only screen and (min-width: 1400px) {
   .section__text {
@@ -3950,3 +3951,22 @@ form .inputs-description {
 /* ------------------------------------------------*/
 /* Gallery Custom Styles End */
 /* ------------------------------------------------*/
+
+
+/* ------------------------------------------------ */
+
+.resume-date {
+  color: #ffffff;
+  font: italic;
+  font-size: 1.8rem;
+}
+
+.resume-info {
+  font-size: 2.5rem;
+  margin-bottom: 0;
+}
+
+.resume-paragraph {
+  margin-top: 0.5rem;
+  margin-bottom: 4rem;
+}
