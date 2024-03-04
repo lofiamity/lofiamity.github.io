@@ -8,9 +8,6 @@
 
 const header = document.getElementById('header');
 const imagesDesktop = [
-    './src/images/hero-desktop-1.jpg',
-    './src/images/hero-desktop-5.jpg',
-    './src/images/hero-desktop-6.jpg',
     './src/images/hero-desktop-2.jpg',
     './src/images/hero-desktop-3.jpg',
     './src/images/hero-desktop-4.jpg',
