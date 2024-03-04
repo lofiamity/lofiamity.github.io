@@ -158,14 +158,13 @@ setInterval(changeBackground, 2000);
 //         });
 //     }
 // });
-
 document.addEventListener('DOMContentLoaded', function() {
     // Mendapatkan parameter JSON dari URL
     const urlParams = new URLSearchParams(window.location.search);
     const jsonName = urlParams.get('json');
 
     // Menentukan path menuju file JSON berdasarkan parameter JSON
-    const jsonPath = jsonName ? `/${jsonName}.json` : '/json1.json';
+    const jsonPath = jsonName ? `${window.location.pathname}${jsonName}.json` : '/disney.json';
 
     fetch(jsonPath)
         .then(response => response.json())
