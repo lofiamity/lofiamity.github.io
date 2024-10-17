@@ -16,7 +16,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      display: none; /* Hide iframes by default */
+      display: none; /* Hide all iframes initially */
     }
 
     /* Display the active iframe */
@@ -49,6 +49,7 @@
       border: none;
       font-size: 18px;
       font-weight: bold;
+      cursor: pointer;
     }
 
     /* Highlight active tab */
@@ -60,18 +61,19 @@
 <body>
 
   <!-- Iframe Containers -->
-  <div id="caption-iframe" class="iframe-container active">
+  <div id="caption-container" class="iframe-container active">
     <iframe 
       src="https://fancyfeast-joy-caption-pre-alpha.hf.space/" 
-      sandbox="allow-scripts allow-same-origin allow-forms">
+      sandbox="allow-scripts allow-same-origin allow-forms" 
+      id="caption-iframe">
     </iframe>
   </div>
 
-  <div id="generate-iframe" class="iframe-container">
+  <div id="generate-container" class="iframe-container">
     <iframe 
       src="https://black-forest-labs-flux-1-schnell.hf.space/" 
       sandbox="allow-scripts allow-same-origin allow-forms" 
-      id="generateIframe">
+      id="generate-iframe">
     </iframe>
   </div>
 
@@ -84,32 +86,12 @@
   <!-- JavaScript to Handle Tab Switching -->
   <script>
     function showIframe(tab) {
-      // Hide all iframes
+      // Hide all iframes and deactivate all tabs
       document.querySelectorAll('.iframe-container').forEach(el => el.classList.remove('active'));
-      // Remove active class from all buttons
       document.querySelectorAll('.tab-bar button').forEach(btn => btn.classList.remove('active'));
 
-      if (tab === 'generate') {
-        // Check if iframe loads correctly
-        const iframe = document.getElementById('generateIframe');
-        iframe.onload = function () {
-          try {
-            const doc = iframe.contentDocument || iframe.contentWindow.document;
-            if (!doc || doc.body.innerHTML.trim() === '') {
-              // Fallback: Open in new tab if iframe doesn't load
-              window.open('https://black-forest-labs-flux-1-schnell.hf.space/', '_blank');
-              return;
-            }
-          } catch (error) {
-            // Open in new tab if any CORS or loading issue occurs
-            window.open('https://black-forest-labs-flux-1-schnell.hf.space/', '_blank');
-            return;
-          }
-        };
-      }
-
-      // Show the selected iframe and activate the corresponding button
-      document.getElementById(`${tab}-iframe`).classList.add('active');
+      // Show the selected iframe and activate the corresponding tab
+      document.getElementById(`${tab}-container`).classList.add('active');
       document.getElementById(`${tab}-tab`).classList.add('active');
     }
   </script>
