@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F</title>
+
+  <style>
+    /* Fullscreen iframe styling */
+    .iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      transition: z-index 0.3s; /* Smooth transition */
+    }
+
+    /* Fixed button at the bottom */
+    .toggle-button {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Iframe 1 (Caption) -->
+  <iframe 
+    id="caption-iframe" 
+    class="iframe" 
+    src="https://fancyfeast-joy-caption-pre-alpha.hf.space/" 
+    style="z-index: 1;">
+  </iframe>
+
+  <!-- Iframe 2 (Generate) -->
+  <iframe 
+    id="generate-iframe" 
+    class="iframe" 
+    src="https://black-forest-labs-flux-1-schnell.hf.space/" 
+    style="z-index: 0;">
+  </iframe>
+
+  <!-- Toggle Button -->
+  <button class="toggle-button" onclick="toggleZIndex()">Toggle Iframe</button>
+
+  <!-- JavaScript to Handle Z-Index Toggle -->
+  <script>
+    let isCaptionOnTop = true;
+
+    function toggleZIndex() {
+      const captionIframe = document.getElementById('caption-iframe');
+      const generateIframe = document.getElementById('generate-iframe');
+
+      if (isCaptionOnTop) {
+        captionIframe.style.zIndex = 0;
+        generateIframe.style.zIndex = 1;
+      } else {
+        captionIframe.style.zIndex = 1;
+        generateIframe.style.zIndex = 0;
+      }
+
+      // Toggle the state
+      isCaptionOnTop = !isCaptionOnTop;
+    }
+  </script>
+
+</body>
+</html>
