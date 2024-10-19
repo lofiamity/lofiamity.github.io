@@ -3,75 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>F</title>
-
+  <title>Fullscreen Tabbed Iframe</title>
+  
+  <!-- Bootstrap CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
   <style>
-    /* Fullscreen iframe styling */
-    .iframe {
-      position: absolute;
+    /* Fullscreen iframe container */
+    .iframe-container {
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      border: none;
-      transition: z-index 0.3s; /* Smooth transition */
+      display: none; /* Hide iframes by default */
     }
 
-    /* Fixed button at the bottom */
-    .toggle-button {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
+    /* Display the active iframe */
+    .iframe-container.active {
+      display: block;
+    }
+
+    /* Iframe styling to fit screen */
+    iframe {
+      width: 100%;
+      height: 100%;
       border: none;
-      border-radius: 5px;
+    }
+
+    /* Fixed tab bar at bottom */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #343a40;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+
+    .tab-bar button {
+      color: white;
+      background-color: transparent;
+      border: none;
       font-size: 18px;
-      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Highlight active tab */
+    .tab-bar button.active {
+      color: #0d6efd;
     }
   </style>
 </head>
 <body>
 
-  <!-- Iframe 1 (Caption) -->
-  <iframe 
-    id="caption-iframe" 
-    class="iframe" 
-    src="https://fancyfeast-joy-caption-pre-alpha.hf.space/" 
-    style="z-index: 1;">
-  </iframe>
+  <!-- Iframe Containers -->
+  <div id="caption-iframe" class="iframe-container active">
+    <iframe src="https://fancyfeast-joy-caption-pre-alpha.hf.space/"></iframe>
+  </div>
 
-  <!-- Iframe 2 (Generate) -->
-  <iframe 
-    id="generate-iframe" 
-    class="iframe" 
-    src="https://black-forest-labs-flux-1-schnell.hf.space/" 
-    style="z-index: 0;">
-  </iframe>
+  <div id="generate-iframe" class="iframe-container">
+    <iframe src="https://black-forest-labs-flux-1-schnell.hf.space/"></iframe>
+  </div>
 
-  <!-- Toggle Button -->
-  <button class="toggle-button" onclick="toggleZIndex()">Toggle Iframe</button>
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button id="caption-tab" class="active" onclick="showIframe('caption')">Caption</button>
+    <button id="generate-tab" onclick="showIframe('generate')">Generate</button>
+  </div>
 
-  <!-- JavaScript to Handle Z-Index Toggle -->
+  <!-- JavaScript to Handle Tab Switching -->
   <script>
-    let isCaptionOnTop = true;
+    function showIframe(tab) {
+      // Hide all iframes
+      document.querySelectorAll('.iframe-container').forEach(el => el.classList.remove('active'));
+      // Remove active class from all buttons
+      document.querySelectorAll('.tab-bar button').forEach(btn => btn.classList.remove('active'));
 
-    function toggleZIndex() {
-      const captionIframe = document.getElementById('caption-iframe');
-      const generateIframe = document.getElementById('generate-iframe');
-
-      if (isCaptionOnTop) {
-        captionIframe.style.zIndex = 0;
-        generateIframe.style.zIndex = 1;
-      } else {
-        captionIframe.style.zIndex = 1;
-        generateIframe.style.zIndex = 0;
-      }
-
-      // Toggle the state
-      isCaptionOnTop = !isCaptionOnTop;
+      // Show the selected iframe and activate the corresponding button
+      document.getElementById(`${tab}-iframe`).classList.add('active');
+      document.getElementById(`${tab}-tab`).classList.add('active');
     }
   </script>
 
