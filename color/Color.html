@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Export Palette</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      margin: 24px;
+      padding: 0;
+      background-color: #FFF8F6;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 48px);
+      position: relative;
+    }
+
+    .container-wrapper {
+      width: 640px;
+      height: 800px; /* Rasio 4:5 untuk Instagram */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container {
+      width: 150%;
+      max-width: 600px;
+      background-color: #FFFFFF;
+      padding: 32px 40px;
+      border-radius: 10px;
+      box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      margin: 24px; /* Agar bagian body terlihat dengan jarak dari tepi container */
+    }
+
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .color {
+      min-width: 150px;
+      padding: 32px 0;
+      border-radius: 10px;
+      font-size: 12px;
+      color: #FFFFFF;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .color input {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      font-size: 12px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 4px;
+      display: none;
+    }
+
+    .color:hover input,
+    .color input:focus {
+      display: block;
+    }
+
+    .header {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #333333;
+      margin-bottom: 32px;
+      letter-spacing: 2px;
+    }
+    
+    .header img {
+      width: 40px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+    }
+
+    .brand {
+      font-weight: bold;
+      font-size: 16px;
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    footer {
+      margin-top: 32px;
+    }
+
+    #download-btn {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      font-size: 14px;
+      background-color: #535878;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 10; /* Agar di atas elemen lainnya */
+    }
+  </style>
+</head>
+<body>
+  <div class="container-wrapper">
+    <div class="container" id="capture-area">
+      <div class="header">
+        <img src="https://i.ibb.co.com/S7pSHWT/IMG-20241123-213059.jpg" alt="Brand">
+        <span class="brand">SPACESCOLOR</span>
+      </div>
+      <div class="palette">
+        <div class="color" style="background-color: #B8D8E3;">
+          <input type="text" value="#B8D8E3" onchange="updateColor(this)">
+          #B8D8E3
+        </div>
+        <div class="color" style="background-color: #FEB1DD;">
+          <input type="text" value="#FEB1DD" onchange="updateColor(this)">
+          #FEB1DD
+        </div>
+        <div class="color" style="background-color: #9DB0CE;">
+          <input type="text" value="#9DB0CE" onchange="updateColor(this)">
+          #9DB0CE
+        </div>
+        <div class="color" style="background-color: #B9C2C5;">
+          <input type="text" value="#B9C2C5" onchange="updateColor(this)">
+          #B9C2C5
+        </div>
+        <div class="color" style="background-color: #535878;">
+          <input type="text" value="#535878" onchange="updateColor(this)">
+          #535878
+        </div>
+        <div class="color" style="background-color: #CEA0AA;">
+          <input type="text" value="#CEA0AA" onchange="updateColor(this)">
+          #CEA0AA
+        </div>
+      </div>
+      <footer>
+        <p>Follow to get daily palette colors.</p>
+      </footer>
+    </div>
+  </div>
+  <button id="download-btn" onclick="downloadImage()">Download</button>
+
+  <script>
+    function updateColor(input) {
+      const colorDiv = input.parentElement;
+      colorDiv.style.backgroundColor = input.value;
+      colorDiv.textContent = input.value;
+      colorDiv.appendChild(input); // Re-append input to keep it hidden
+    }
+
+    function downloadImage() {
+      const captureArea = document.getElementById('capture-area');
+      
+      html2canvas(captureArea, {
+        scale: 6, // Mengatur skala gambar untuk meningkatkan resolusi
+        useCORS: true
+      }).then((canvas) => {
+        const link = document.createElement('a');
+        link.download = 'palette_4k.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 1.0); // Kualitas tertinggi
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
