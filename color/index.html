@@ -36,15 +36,15 @@
       border-radius: 10px;
       box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.08);
       text-align: center;
-      margin: 24px; /* Agar bagian body terlihat dengan jarak dari tepi container */
+      margin: 24px;
     }
-
-    .palette {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
+.palette {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr); /* Tiga baris untuk vertikal */
+  grid-auto-flow: column; /* Ubah aliran otomatis menjadi kolom */
+  gap: 12px;
+  margin-bottom: 20px;
+}
 
     .color {
       min-width: 150px;
@@ -55,26 +55,7 @@
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       position: relative;
       cursor: pointer;
-    }
-
-    .color input {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80%;
-      font-size: 12px;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      padding: 4px;
-      display: none;
-    }
-
-    .color:hover input,
-    .color input:focus {
-      display: block;
+      transition: background-color 0.3s ease-in-out;
     }
 
     .header {
@@ -97,12 +78,12 @@
       display: block;
       margin-bottom: 5px;
     }
-    
+
     footer {
       margin-top: 32px;
     }
 
-    #download-btn {
+    #download-btn, #copy-btn {
       position: absolute;
       bottom: 16px;
       left: 50%;
@@ -114,7 +95,20 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      z-index: 10; /* Agar di atas elemen lainnya */
+      z-index: 10;
+    }
+
+    #textarea {
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+    }
+
+    #copy-btn {
+      bottom: 80px;
     }
   </style>
 </head>
@@ -122,63 +116,72 @@
   <div class="container-wrapper">
     <div class="container" id="capture-area">
       <div class="header">
-        <img src="https://i.ibb.co.com/S7pSHWT/IMG-20241123-213059.jpg" alt="Brand">
+        <img src="https://i.ibb.co/S7pSHWT/IMG-20241123-213059.jpg" alt="Brand" crossorigin="anonymous">
         <span class="brand">SPACESCOLOR</span>
       </div>
-      <div class="palette">
-        <div class="color" style="background-color: #B8D8E3;">
-          <input type="text" value="#B8D8E3" onchange="updateColor(this)">
-          #B8D8E3
-        </div>
-        <div class="color" style="background-color: #FEB1DD;">
-          <input type="text" value="#FEB1DD" onchange="updateColor(this)">
-          #FEB1DD
-        </div>
-        <div class="color" style="background-color: #9DB0CE;">
-          <input type="text" value="#9DB0CE" onchange="updateColor(this)">
-          #9DB0CE
-        </div>
-        <div class="color" style="background-color: #B9C2C5;">
-          <input type="text" value="#B9C2C5" onchange="updateColor(this)">
-          #B9C2C5
-        </div>
-        <div class="color" style="background-color: #535878;">
-          <input type="text" value="#535878" onchange="updateColor(this)">
-          #535878
-        </div>
-        <div class="color" style="background-color: #CEA0AA;">
-          <input type="text" value="#CEA0AA" onchange="updateColor(this)">
-          #CEA0AA
-        </div>
+      <div class="palette" id="palette">
+        <div class="color" style="background-color: #B8D8E3;" data-color="#B8D8E3">#B8D8E3</div>
+        <div class="color" style="background-color: #FEB1DD;" data-color="#FEB1DD">#FEB1DD</div>
+        <div class="color" style="background-color: #9DB0CE;" data-color="#9DB0CE">#9DB0CE</div>
+        <div class="color" style="background-color: #B9C2C5;" data-color="#B9C2C5">#B9C2C5</div>
+        <div class="color" style="background-color: #535878;" data-color="#535878">#535878</div>
+        <div class="color" style="background-color: #CEA0AA;" data-color="#CEA0AA">#CEA0AA</div>
       </div>
       <footer>
         <p>Follow to get daily palette colors.</p>
       </footer>
     </div>
   </div>
-  <button id="download-btn" onclick="downloadImage()">Download</button>
+  <textarea id="textarea" oninput="updatePaletteFromTextarea()" placeholder="Enter color codes here..."></textarea>
+  <button id="download-btn" onclick="downloadImage()">Download Image</button>
+  <button id="copy-btn" onclick="copyCaption()">Copy Caption</button>
 
-  <script>
-    function updateColor(input) {
-      const colorDiv = input.parentElement;
-      colorDiv.style.backgroundColor = input.value;
-      colorDiv.textContent = input.value;
-      colorDiv.appendChild(input); // Re-append input to keep it hidden
+  <script>function updatePaletteFromTextarea() {
+  const textarea = document.getElementById('textarea');
+  const colorValues = textarea.value.split('\n').map(value => value.trim());
+  const palette = document.querySelectorAll('.color');
+
+  colorValues.forEach((color, index) => {
+    if (palette[index]) {
+      if (color.startsWith('#') || /^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)) {
+        // Update background color and text
+        palette[index].style.backgroundColor = color.startsWith('#') ? color : `#${color}`;
+        palette[index].dataset.color = color.startsWith('#') ? color : `#${color}`;
+        palette[index].textContent = color.startsWith('#') ? color : `#${color}`;
+      } else {
+        // Reset invalid input
+        palette[index].style.backgroundColor = '';
+        palette[index].textContent = 'Invalid';
+        palette[index].dataset.color = '';
+      }
+    }
+  });
+}
+    
+
+    function copyCaption() {
+      const colors = Array.from(document.querySelectorAll('.color')).map(colorDiv => colorDiv.dataset.color).filter(Boolean);
+      const caption = `How would you describe this color palette?\nSwipe to see more! 🎨\nColors:\n${colors.join(' • ')}\nHave you used this palette in your designs? Don’t forget to tag your work with #spacescolor`;
+      navigator.clipboard.writeText(caption).then(() => {
+        alert('Caption copied to clipboard!');
+      });
     }
 
     function downloadImage() {
       const captureArea = document.getElementById('capture-area');
-      
       html2canvas(captureArea, {
-        scale: 6, // Mengatur skala gambar untuk meningkatkan resolusi
+        scale: 2,
         useCORS: true
-      }).then((canvas) => {
+      }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'Spaces_Color_original.jpg';
-        link.href = canvas.toDataURL('image/jpeg', 1.0); // Kualitas tertinggi
+        link.download = 'Spaces_Color_Palette.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 1.0); 
         link.click();
+      }).catch(error => {
+        console.error('Error generating canvas:', error);
+        alert('Failed to generate image. Please try again.');
       });
     }
   </script>
 </body>
-</html>
+          </html>
