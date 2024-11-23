@@ -170,7 +170,7 @@
     function downloadImage() {
       const captureArea = document.getElementById('capture-area');
       html2canvas(captureArea, {
-        scale: 2,
+        scale: 6,
         useCORS: true
       }).then(canvas => {
         const link = document.createElement('a');
