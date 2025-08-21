@@ -84,6 +84,8 @@
       margin-right: 6px;
       display: inline-block;
     }
+    footer{margin-top:30px;text-align:center;font-size:13px;color:var(--muted)
+    }
 
     /* Responsive */
     @media (max-width:920px){
@@ -98,11 +100,12 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>📋 Absensi (ringkas per orang per tanggal)</h1>
+    <h1>📋 Absensi</h1>
 
     <!-- Toolbar / Filters -->
     <div class="toolbar" id="filters">
-      <div class="ctrl">
+      <div class="row-date" style="display:flex; justify-content:space-between;">
+        <div class="ctrl">
         <label>Dari Tanggal</label>
         <input type="date" id="startDate">
       </div>
@@ -110,7 +113,8 @@
         <label>Sampai Tanggal</label>
         <input type="date" id="endDate">
       </div>
-      <div class="ctrl">
+      </div>
+      <div class="ctrl" style="display:none">
         <label>Bulan</label>
         <select id="month">
           <option value="">Semua</option>
@@ -120,7 +124,7 @@
           <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
         </select>
       </div>
-      <div class="ctrl">
+      <div class="ctrl" style="display:none;">
         <label>Tahun</label>
         <select id="year"><option value="">Semua</option></select>
       </div>
@@ -174,6 +178,8 @@
     <div class="list" id="list"></div>
     <div class="empty" id="empty" style="display:none;">Tidak ada data untuk filter ini.</div>
   </div>
+  
+    <footer>©2025 DamarJati -️ All Rights Reserved. </footer>
 
   <!-- Modal Detail -->
   <div class="modal" id="modal">
@@ -235,12 +241,7 @@ async function loadData(){
     }).filter(x=>x.nama && x.ymd);
   }catch(e){
     RAW = [
-      {id:1,nama:"Andi",posisi:"Staff",status:"BERANGKAT",ymd:"2025-08-20",jam:"08:02"},
-      {id:2,nama:"Andi",posisi:"Staff",status:"PULANG",ymd:"2025-08-20",jam:"17:10"},
-      {id:3,nama:"Budi",posisi:"Manager",status:"BERANGKAT",ymd:"2025-08-20",jam:"07:55"},
-      {id:4,nama:"Andi",posisi:"Staff",status:"BERANGKAT",ymd:"2025-08-21",jam:"08:05"},
-      {id:5,nama:"Andi",posisi:"Staff",status:"MULAI LEMBUR",ymd:"2025-08-21",jam:"18:15"},
-      {id:6,nama:"Cici",posisi:"Admin",status:"IJIN SETENGAH HARI",ymd:"2025-08-21",jam:"09:00"}
+      {id:1,nama:"Example",posisi:"Staff",status:"BERANGKAT",ymd:"2025-08-20",jam:"08:02"},
     ];
     POSISI_SET = new Set(["Staff","Manager","Admin"]);
   }
@@ -370,4 +371,4 @@ document.getElementById("reset").addEventListener("click", ()=>{
 loadData();
 </script>
 </body>
-  </html>
+                                             </html>
