@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Absensi - Ringkas per Orang per Tanggal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#f7f8fa; --card:#ffffff; --muted:#6b7280; --text:#111827; --line:#e5e7eb;
+      --green:#22c55e; --red:#ef4444; --blue:#3b82f6; --indigo:#6366f1; --amber:#f59e0b; --yellow:#eab308;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;padding:18px;background:var(--bg);color:var(--text);font:400 15px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+    h1{font-size:20px;margin:0 0 14px;padding:0 0 10px;border-bottom:2px solid var(--line)}
+    .wrap{max-width:1100px;margin:0 auto}
+    .toolbar{
+      display:grid;gap:10px;
+      grid-template-columns: repeat(6,minmax(0,1fr));
+      background:var(--card);padding:12px;border-radius:var(--radius);box-shadow:0 2px 6px rgba(0,0,0,.06);margin-bottom:14px;
+    }
+    .ctrl{display:flex;flex-direction:column;gap:6px}
+    .ctrl label{font-size:12px;color:var(--muted)}
+    .ctrl input,.ctrl select{
+      height:38px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:white;outline:0
+    }
+    .ctrl input:focus,.ctrl select:focus{border-color:#c7d2fe;box-shadow:0 0 0 3px #eef2ff}
+    .actions{display:flex;gap:8px;align-items:end}
+    .btn{
+      height:38px;border:none;border-radius:10px;padding:0 12px;cursor:pointer;background:#111827;color:#fff
+    }
+    .btn.secondary{background:#e5e7eb;color:#111827}
+    .list{display:grid;gap:10px}
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+      padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,.05);cursor:pointer;transition:transform .08s ease,box-shadow .08s ease
+    }
+    .card:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+    .info{display:flex;align-items:center;gap:10px;min-width:0}
+    .dot{width:12px;height:12px;border-radius:999px;flex:0 0 12px;box-shadow:0 0 0 3px rgba(0,0,0,.05) inset}
+    .title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sub{font-size:12px;color:var(--muted)}
+    .right{text-align:right}
+    .date{font-weight:600}
+    .empty{color:var(--muted);text-align:center;padding:30px}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:14px}
+    .sheet{background:var(--card);border-radius:16px;max-width:650px;width:100%;padding:16px;border:1px solid var(--line)}
+    .sheet h2{margin:0 0 10px;font-size:18px}
+    .rows{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+    .row{display:grid;grid-template-columns:90px 1fr;gap:6px;padding:10px 12px;border-top:1px solid var(--line);font-size:14px}
+    .row:first-child{border-top:none}
+    .k{color:var(--muted)}
+    .close{margin-top:12px}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);font-size:12px;background:#fafafa}
+
+    /* Status colors */
+    .st-berangkat{background:var(--green)}
+    .st-pulang{background:var(--red)}
+    .st-mulai-lembur{background:var(--blue)}
+    .st-pulang-lembur{background:var(--indigo)}
+    .st-ijin-setengah{background:var(--amber)}
+    .st-ijin-terlambat{background:var(--yellow)}
+    
+      .legend-container {
+    display: flex;
+    flex-wrap: wrap; /* kalau tidak muat, turun ke bawah */
+    gap: 12px;
+    margin: 10px 0;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #333;
+  }
+  .legend-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+    display: inline-block;
+  }
+  .berangkat { background-color: #4caf50; } /* hijau */
+  .pulang { background-color: #f44336; }   /* merah */
+  .lembur { background-color: #2196f3; }   /* biru */
+  .izin { background-color: #ff9800; }     /* oranye */
+
+    /* Responsive */
+    @media (max-width:920px){
+      .toolbar{grid-template-columns: repeat(3,minmax(0,1fr))}
+    }
+    @media (max-width:540px){
+      .toolbar{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr}
+      .right{text-align:left}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>📋 Absensi (ringkas per orang per tanggal)</h1>
+
+    <!-- Toolbar / Filters -->
+    <div class="toolbar" id="filters">
+      <div class="ctrl">
+        <label>Dari Tanggal</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="ctrl">
+        <label>Sampai Tanggal</label>
+        <input type="date" id="endDate">
+      </div>
+      <div class="ctrl">
+        <label>Bulan</label>
+        <select id="month">
+          <option value="">Semua</option>
+          <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+          <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+          <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+          <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Tahun</label>
+        <select id="year"><option value="">Semua</option></select>
+      </div>
+      <div class="ctrl">
+        <label>Status</label>
+        <select id="status">
+          <option value="">Semua</option>
+          <option value="BERANGKAT">Berangkat</option>
+          <option value="PULANG">Pulang</option>
+          <option value="MULAI LEMBUR">Mulai Lembur</option>
+          <option value="PULANG LEMBUR">Pulang Lembur</option>
+          <option value="IJIN SETENGAH HARI">Ijin Setengah Hari</option>
+          <option value="IJIN TERLAMBAT DALAM HITUNGAN JAM">Ijin Terlambat (Jam)</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Posisi</label>
+        <select id="posisi"><option value="">Semua</option></select>
+      </div>
+
+      <div class="ctrl">
+        <label>Urutkan</label>
+        <select id="sort">
+          <option value="date-desc">Terbaru</option>
+          <option value="date-asc">Terlama</option>
+          <option value="name-asc">Nama A–Z</option>
+          <option value="name-desc">Nama Z–A</option>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Cari Nama</label>
+        <input type="text" id="search" placeholder="Ketik nama…">
+      </div>
+      <div class="actions">
+        <button class="btn" id="apply">Terapkan</button>
+        <button class="btn secondary" id="reset">Reset</button>
+      </div>
+    </div>
+    
+<!-- Legend Keterangan Warna -->
+<div class="legend-container">
+  <div class="legend-item">
+    <span class="legend-circle berangkat"></span>
+    <span>Berangkat</span>
+  </div>
+  <div class="legend-item">
+    <span class="legend-circle pulang"></span>
+    <span>Pulang</span>
+  </div>
+  <div class="legend-item">
+    <span class="legend-circle lembur"></span>
+    <span>Lembur</span>
+  </div>
+  <div class="legend-item">
+    <span class="legend-circle izin"></span>
+    <span>Izin</span>
+  </div>
+</div>
+
+
+    <!-- List -->
+    <div class="list" id="list"></div>
+    <div class="empty" id="empty" style="display:none;">Tidak ada data untuk filter ini.</div>
+  </div>
+
+  <!-- Modal Detail -->
+  <div class="modal" id="modal">
+    <div class="sheet">
+      <h2 id="modalTitle">Detail</h2>
+      <div class="rows" id="detail"></div>
+      <button class="btn close" id="close">Tutup</button>
+    </div>
+  </div>
+
+<script>
+/* ===================== CONFIG ===================== */
+// Ganti ini jika mau ambil dari Google Sheets (format gviz JSON):
+const DATA_URL = "https://docs.google.com/spreadsheets/d/1aIvb1mm2xB_ZbXS0MgXGYDjV7j4mmicSlcU3bDfDLLc/gviz/tq?tqx=out:json&gid=0";
+
+/* ============== Util & Normalization ============== */
+const fmtID = new Intl.DateTimeFormat("id-ID",{day:"2-digit",month:"2-digit",year:"numeric"});
+const monthNames = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+function toYMD(d){ // Date -> 'YYYY-MM-DD'
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function parseDateFlexible(s){
+  // Support: 'DD/MM/YYYY', 'YYYY-MM-DD', 'DD-MM-YYYY'
+  if(!s) return null;
+  s=s.trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s+"T00:00:00");
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){
+    const [dd,mm,yy]=s.split("/").map(Number);
+    return new Date(`${yy}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}T00:00:00`);
+  }
+  if(/^\d{2}-\d{2}-\d{4}$/.test(s)){
+    const [dd,mm,yy]=s.split("-").map(Number);
+    return new Date(`${yy}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}T00:00:00`);
+  }
+  // fallback Date()
+  const d = new Date(s);
+  return isNaN(d)? null : d;
+}
+function parseDateTimeFlexible(s){
+  // 'DD/MM/YYYY HH:MM', 'YYYY-MM-DD HH:MM:SS', etc.
+  if(!s) return {date:null,time:""};
+  const parts = s.split(" ");
+  const dateStr = parts[0];
+  const timeStr = parts[1] || "";
+  const d = parseDateFlexible(dateStr);
+  return {date:d,time:timeStr};
+}
+function normalizeStatus(raw=""){
+  const t = (raw||"").toString().trim().toUpperCase();
+  if(t.includes("BERANGKAT")) return "BERANGKAT";
+  if(t.includes("PULANG LEMBUR")) return "PULANG LEMBUR";
+  if(t.includes("MULAI LEMBUR")) return "MULAI LEMBUR";
+  if(t.includes("PULANG")) return "PULANG";
+  if(t.includes("SETENGAH")) return "IJIN SETENGAH HARI";
+  if(t.includes("TERLAMBAT")) return "IJIN TERLAMBAT DALAM HITUNGAN JAM";
+  return t||"";
+}
+function statusClass(st){
+  const s = normalizeStatus(st);
+  if(s==="BERANGKAT") return "st-berangkat";
+  if(s==="PULANG") return "st-pulang";
+  if(s==="MULAI LEMBUR") return "st-mulai-lembur";
+  if(s==="PULANG LEMBUR") return "st-pulang-lembur";
+  if(s==="IJIN SETENGAH HARI") return "st-ijin-setengah";
+  if(s==="IJIN TERLAMBAT DALAM HITUNGAN JAM") return "st-ijin-terlambat";
+  return "st-berangkat";
+}
+function compareByYMDDesc(a,b){ // terbaru dulu
+  if(a.ymd > b.ymd) return -1;
+  if(a.ymd < b.ymd) return 1;
+  return 0;
+}
+
+/* =================== Data Pipeline =================== */
+let RAW = [];       // events baris mentah
+let GROUPED = [];   // per (nama, ymd) untuk list utama
+let POSISI_SET = new Set();
+
+async function loadData(){
+  try{
+    const text = await fetch(DATA_URL).then(r=>r.text());
+    const json = JSON.parse(text.substring(47, text.length-2)); // gviz
+    const rows = json.table.rows || [];
+    RAW = rows.map((r,idx)=>{
+      // SESUAI kolommu: [0]=id?, [2]=nama, [3]=posisi, [4]=datetime, [6]=status
+      const id = r.c[0]?.v ?? idx+1;
+      const nama = (r.c[2]?.v || "").toString().trim();
+      const posisi = (r.c[3]?.v || "").toString().trim();
+      const dtRaw = (r.c[4]?.v || "").toString().trim();
+      const status = normalizeStatus(r.c[6]?.v || "");
+      const {date,time} = parseDateTimeFlexible(dtRaw);
+      const ymd = date ? toYMD(date) : "";
+      POSISI_SET.add(posisi||"");
+      return { id, nama, posisi, status, ymd, jam: time||"", rawDate: dtRaw };
+    }).filter(x=>x.nama && x.ymd);
+
+  }catch(e){
+    // Fallback dummy jika fetch gagal (biar bisa dicoba offline)
+    RAW = [
+      {id:1,nama:"Andi",posisi:"Staff",status:"BERANGKAT",ymd:"2025-08-20",jam:"08:02"},
+      {id:2,nama:"Andi",posisi:"Staff",status:"PULANG",ymd:"2025-08-20",jam:"17:10"},
+      {id:3,nama:"Budi",posisi:"Manager",status:"BERANGKAT",ymd:"2025-08-20",jam:"07:55"},
+      {id:4,nama:"Andi",posisi:"Staff",status:"BERANGKAT",ymd:"2025-08-21",jam:"08:05"},
+      {id:5,nama:"Andi",posisi:"Staff",status:"MULAI LEMBUR",ymd:"2025-08-21",jam:"18:15"},
+      {id:6,nama:"Cici",posisi:"Admin",status:"IJIN SETENGAH HARI",ymd:"2025-08-21",jam:"09:00"}
+    ];
+    POSISI_SET = new Set(["Staff","Manager","Admin"]);
+  }
+
+  populateFilterMeta();
+  computeGroups();
+  render();
+}
+
+function populateFilterMeta(){
+  // Tahun dari data
+  const years=[...new Set(RAW.map(r=>r.ymd.slice(0,4)))].sort((a,b)=>b.localeCompare(a));
+  const yearSel=document.getElementById("year");
+  yearSel.innerHTML = `<option value="">Semua</option>` + years.map(y=>`<option value="${y}">${y}</option>`).join("");
+
+  // Posisi dari data
+  const posSel=document.getElementById("posisi");
+  posSel.innerHTML = `<option value="">Semua</option>` + [...POSISI_SET].filter(Boolean).sort().map(p=>`<option value="${p}">${p}</option>`).join("");
+
+  // Default range: 7 hari terakhir
+  const end = new Date(); const start = new Date(); start.setDate(end.getDate()-7);
+  document.getElementById("startDate").value = toYMD(start);
+  document.getElementById("endDate").value = toYMD(end);
+  document.getElementById("sort").value = "date-desc";
+}
+
+function computeGroups(){
+  // Group by key: nama|ymd
+  const map = new Map();
+  for(const e of RAW){
+    const key = `${e.nama}||${e.ymd}`;
+    if(!map.has(key)) map.set(key, []);
+    map.get(key).push(e);
+  }
+  GROUPED = [];
+  for(const [key, arr] of map.entries()){
+    // status saat ini = event dengan jam terbesar (atau urutan input)
+    arr.sort((a,b)=> (a.jam||"").localeCompare(b.jam||""));
+    const latest = arr[arr.length-1];
+    const [nama, ymd] = key.split("||");
+    GROUPED.push({
+      nama,
+      posisi: latest.posisi || arr[0].posisi || "",
+      ymd,
+      currentStatus: latest.status,
+      events: arr
+    });
+  }
+}
+
+/* =================== Rendering & Filters =================== */
+function applyFilters(){
+  const sDate = document.getElementById("startDate").value;
+  const eDate = document.getElementById("endDate").value;
+  const month = document.getElementById("month").value;
+  const year  = document.getElementById("year").value;
+  const status= document.getElementById("status").value;
+  const posisi= document.getElementById("posisi").value;
+  const q     = document.getElementById("search").value.trim().toLowerCase();
+  const sort  = document.getElementById("sort").value;
+
+  let rows = GROUPED.slice();
+
+  // filter range
+  if(sDate) rows = rows.filter(r => r.ymd >= sDate);
+  if(eDate) rows = rows.filter(r => r.ymd <= eDate);
+
+  // filter bulan/tahun
+  if(year)  rows = rows.filter(r => r.ymd.startsWith(year+"-"));
+  if(month) rows = rows.filter(r => Number(r.ymd.slice(5,7)) === Number(month));
+
+  // filter status (berdasarkan status saat ini)
+  if(status) rows = rows.filter(r => r.currentStatus === status);
+
+  // filter posisi
+  if(posisi) rows = rows.filter(r => r.posisi === posisi);
+
+  // search nama
+  if(q) rows = rows.filter(r => r.nama.toLowerCase().includes(q));
+
+  // sorting
+  if(sort==="date-desc") rows.sort(compareByYMDDesc);
+  else if(sort==="date-asc") rows.sort((a,b)=> -compareByYMDDesc(a,b));
+  else if(sort==="name-asc") rows.sort((a,b)=> a.nama.localeCompare(b.nama));
+  else if(sort==="name-desc") rows.sort((a,b)=> b.nama.localeCompare(a.nama));
+
+  return rows;
+}
+
+function render(){
+  const data = applyFilters();
+  const list = document.getElementById("list");
+  const empty = document.getElementById("empty");
+  list.innerHTML = "";
+  if(data.length===0){ empty.style.display="block"; return; }
+  empty.style.display="none";
+
+  for(const r of data){
+    const card = document.createElement("div"); card.className="card";
+    const left = document.createElement("div"); left.className="info";
+    const dot  = document.createElement("span"); dot.className = `dot ${statusClass(r.currentStatus)}`;
+    const txt  = document.createElement("div");
+    txt.innerHTML = `<div class="title">${r.nama}</div><div class="sub">${r.posisi||"-"}</div>`;
+    left.appendChild(dot); left.appendChild(txt);
+
+    const right = document.createElement("div"); right.className="right";
+    const [y,m,d] = r.ymd.split("-");
+    right.innerHTML = `<div class="date">${d}-${m}-${y}</div><div class="sub"><span class="pill">${r.currentStatus}</span></div>`;
+
+    card.appendChild(left); card.appendChild(right);
+    card.addEventListener("click", ()=>openDetail(r));
+    list.appendChild(card);
+  }
+}
+
+function openDetail(group){
+  const title = document.getElementById("modalTitle");
+  const detail= document.getElementById("detail");
+  title.textContent = `${group.nama} • ${group.posisi||"-"} • ${group.ymd}`;
+  detail.innerHTML="";
+
+  // tampilkan semua event hari itu (urut jam ascending)
+  const arr = group.events.slice().sort((a,b)=>(a.jam||"").localeCompare(b.jam||""));
+  for(const e of arr){
+    const row = document.createElement("div"); row.className="row";
+    const k = document.createElement("div"); k.className="k"; k.textContent = e.jam || "-";
+    const v = document.createElement("div");
+    v.innerHTML = `
+      <div><strong>${e.status}</strong></div>
+      <div class="sub">ID: ${e.id ?? "-"}</div>
+      <div class="sub">Posisi: ${e.posisi || "-"}</div>
+    `;
+    row.appendChild(k); row.appendChild(v);
+    detail.appendChild(row);
+  }
+  document.getElementById("modal").style.display="flex";
+}
+document.getElementById("close").onclick = ()=> document.getElementById("modal").style.display="none";
+
+/* =================== Events =================== */
+document.getElementById("apply").addEventListener("click", render);
+document.getElementById("reset").addEventListener("click", ()=>{
+  document.getElementById("month").value="";
+  document.getElementById("year").value="";
+  document.getElementById("status").value="";
+  document.getElementById("posisi").value="";
+  document.getElementById("search").value="";
+  document.getElementById("sort").value="date-desc";
+  // reset ke 7 hari terakhir
+  const end = new Date(); const start = new Date(); start.setDate(end.getDate()-7);
+  document.getElementById("startDate").value = toYMD(start);
+  document.getElementById("endDate").value = toYMD(end);
+  render();
+});
+
+// render realtime saat filter berubah (opsional, enak dipakai)
+["startDate","endDate","month","year","status","posisi","sort","search"].forEach(id=>{
+  document.getElementById(id).addEventListener(id==="search"?"input":"change", render);
+});
+
+/* =================== Boot =================== */
+loadData();
+</script>
+</body>
+</html>
