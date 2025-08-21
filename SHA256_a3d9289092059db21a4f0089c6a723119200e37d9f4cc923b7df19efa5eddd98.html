@@ -63,30 +63,27 @@
     .st-pulang-lembur{background:var(--indigo)}
     .st-ijin-setengah{background:var(--amber)}
     .st-ijin-terlambat{background:var(--yellow)}
-    
-      .legend-container {
-    display: flex;
-    flex-wrap: wrap; /* kalau tidak muat, turun ke bawah */
-    gap: 12px;
-    margin: 10px 0;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: #333;
-  }
-  .legend-circle {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 6px;
-    display: inline-block;
-  }
-  .berangkat { background-color: #4caf50; } /* hijau */
-  .pulang { background-color: #f44336; }   /* merah */
-  .lembur { background-color: #2196f3; }   /* biru */
-  .izin { background-color: #ff9800; }     /* oranye */
+
+    /* Legend */
+    .legend-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 10px 0;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #333;
+    }
+    .legend-circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+      display: inline-block;
+    }
 
     /* Responsive */
     @media (max-width:920px){
@@ -163,26 +160,15 @@
       </div>
     </div>
     
-<!-- Legend Keterangan Warna -->
-<div class="legend-container">
-  <div class="legend-item">
-    <span class="legend-circle berangkat"></span>
-    <span>Berangkat</span>
-  </div>
-  <div class="legend-item">
-    <span class="legend-circle pulang"></span>
-    <span>Pulang</span>
-  </div>
-  <div class="legend-item">
-    <span class="legend-circle lembur"></span>
-    <span>Lembur</span>
-  </div>
-  <div class="legend-item">
-    <span class="legend-circle izin"></span>
-    <span>Izin</span>
-  </div>
-</div>
-
+    <!-- Legend Keterangan Warna -->
+    <div class="legend-container">
+      <div class="legend-item"><span class="legend-circle" style="background:#22c55e"></span><span>Berangkat</span></div>
+      <div class="legend-item"><span class="legend-circle" style="background:#ef4444"></span><span>Pulang</span></div>
+      <div class="legend-item"><span class="legend-circle" style="background:#3b82f6"></span><span>Mulai Lembur</span></div>
+      <div class="legend-item"><span class="legend-circle" style="background:#6366f1"></span><span>Pulang Lembur</span></div>
+      <div class="legend-item"><span class="legend-circle" style="background:#f59e0b"></span><span>Ijin Setengah Hari</span></div>
+      <div class="legend-item"><span class="legend-circle" style="background:#eab308"></span><span>Ijin Terlambat (Jam)</span></div>
+    </div>
 
     <!-- List -->
     <div class="list" id="list"></div>
@@ -200,81 +186,43 @@
 
 <script>
 /* ===================== CONFIG ===================== */
-// Ganti ini jika mau ambil dari Google Sheets (format gviz JSON):
 const DATA_URL = "https://docs.google.com/spreadsheets/d/1aIvb1mm2xB_ZbXS0MgXGYDjV7j4mmicSlcU3bDfDLLc/gviz/tq?tqx=out:json&gid=0";
 
 /* ============== Util & Normalization ============== */
 const fmtID = new Intl.DateTimeFormat("id-ID",{day:"2-digit",month:"2-digit",year:"numeric"});
-const monthNames = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-
-function toYMD(d){ // Date -> 'YYYY-MM-DD'
-  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
-  return `${y}-${m}-${day}`;
-}
-function parseDateFlexible(s){
-  // Support: 'DD/MM/YYYY', 'YYYY-MM-DD', 'DD-MM-YYYY'
-  if(!s) return null;
-  s=s.trim();
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s+"T00:00:00");
-  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){
-    const [dd,mm,yy]=s.split("/").map(Number);
-    return new Date(`${yy}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}T00:00:00`);
-  }
-  if(/^\d{2}-\d{2}-\d{4}$/.test(s)){
-    const [dd,mm,yy]=s.split("-").map(Number);
-    return new Date(`${yy}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}T00:00:00`);
-  }
-  // fallback Date()
-  const d = new Date(s);
-  return isNaN(d)? null : d;
-}
-function parseDateTimeFlexible(s){
-  // 'DD/MM/YYYY HH:MM', 'YYYY-MM-DD HH:MM:SS', etc.
-  if(!s) return {date:null,time:""};
-  const parts = s.split(" ");
-  const dateStr = parts[0];
-  const timeStr = parts[1] || "";
-  const d = parseDateFlexible(dateStr);
-  return {date:d,time:timeStr};
-}
-function normalizeStatus(raw=""){
-  const t = (raw||"").toString().trim().toUpperCase();
+function toYMD(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${day}`; }
+function parseDateFlexible(s){ if(!s) return null; s=s.trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s+"T00:00:00");
+  if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){ const [dd,mm,yy]=s.split("/").map(Number); return new Date(`${yy}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}T00:00:00`);}
+  if(/^\d{2}-\d{2}-\d{4}$/.test(s)){ const [dd,mm,yy]=s.split("-").map(Number); return new Date(`${yy}-${String(mm).padStart(2,"0")}-${String(dd).padStart(2,"0")}T00:00:00`);}
+  const d = new Date(s); return isNaN(d)? null : d;}
+function parseDateTimeFlexible(s){ if(!s) return {date:null,time:""}; const parts = s.split(" "); const dateStr = parts[0]; const timeStr = parts[1] || ""; const d = parseDateFlexible(dateStr); return {date:d,time:timeStr}; }
+function normalizeStatus(raw=""){ const t = (raw||"").toString().trim().toUpperCase();
   if(t.includes("BERANGKAT")) return "BERANGKAT";
   if(t.includes("PULANG LEMBUR")) return "PULANG LEMBUR";
   if(t.includes("MULAI LEMBUR")) return "MULAI LEMBUR";
   if(t.includes("PULANG")) return "PULANG";
   if(t.includes("SETENGAH")) return "IJIN SETENGAH HARI";
   if(t.includes("TERLAMBAT")) return "IJIN TERLAMBAT DALAM HITUNGAN JAM";
-  return t||"";
-}
-function statusClass(st){
-  const s = normalizeStatus(st);
+  return t||"";}
+function statusClass(st){ const s = normalizeStatus(st);
   if(s==="BERANGKAT") return "st-berangkat";
   if(s==="PULANG") return "st-pulang";
   if(s==="MULAI LEMBUR") return "st-mulai-lembur";
   if(s==="PULANG LEMBUR") return "st-pulang-lembur";
   if(s==="IJIN SETENGAH HARI") return "st-ijin-setengah";
   if(s==="IJIN TERLAMBAT DALAM HITUNGAN JAM") return "st-ijin-terlambat";
-  return "st-berangkat";
-}
-function compareByYMDDesc(a,b){ // terbaru dulu
-  if(a.ymd > b.ymd) return -1;
-  if(a.ymd < b.ymd) return 1;
-  return 0;
-}
+  return "st-berangkat";}
+function compareByYMDDesc(a,b){ if(a.ymd > b.ymd) return -1; if(a.ymd < b.ymd) return 1; return 0; }
 
 /* =================== Data Pipeline =================== */
-let RAW = [];       // events baris mentah
-let GROUPED = [];   // per (nama, ymd) untuk list utama
-let POSISI_SET = new Set();
+let RAW = []; let GROUPED = []; let POSISI_SET = new Set();
 
 async function loadData(){
   try{
     const text = await fetch(DATA_URL).then(r=>r.text());
-    const json = JSON.parse(text.substring(47, text.length-2)); // gviz
+    const json = JSON.parse(text.substring(47, text.length-2));
     const rows = json.table.rows || [];
     RAW = rows.map((r,idx)=>{
-      // SESUAI kolommu: [0]=id?, [2]=nama, [3]=posisi, [4]=datetime, [6]=status
       const id = r.c[0]?.v ?? idx+1;
       const nama = (r.c[2]?.v || "").toString().trim();
       const posisi = (r.c[3]?.v || "").toString().trim();
@@ -285,9 +233,7 @@ async function loadData(){
       POSISI_SET.add(posisi||"");
       return { id, nama, posisi, status, ymd, jam: time||"", rawDate: dtRaw };
     }).filter(x=>x.nama && x.ymd);
-
   }catch(e){
-    // Fallback dummy jika fetch gagal (biar bisa dicoba offline)
     RAW = [
       {id:1,nama:"Andi",posisi:"Staff",status:"BERANGKAT",ymd:"2025-08-20",jam:"08:02"},
       {id:2,nama:"Andi",posisi:"Staff",status:"PULANG",ymd:"2025-08-20",jam:"17:10"},
@@ -298,54 +244,30 @@ async function loadData(){
     ];
     POSISI_SET = new Set(["Staff","Manager","Admin"]);
   }
-
-  populateFilterMeta();
-  computeGroups();
-  render();
+  populateFilterMeta(); computeGroups(); render();
 }
 
 function populateFilterMeta(){
-  // Tahun dari data
   const years=[...new Set(RAW.map(r=>r.ymd.slice(0,4)))].sort((a,b)=>b.localeCompare(a));
-  const yearSel=document.getElementById("year");
-  yearSel.innerHTML = `<option value="">Semua</option>` + years.map(y=>`<option value="${y}">${y}</option>`).join("");
-
-  // Posisi dari data
+  document.getElementById("year").innerHTML = `<option value="">Semua</option>` + years.map(y=>`<option value="${y}">${y}</option>`).join("");
   const posSel=document.getElementById("posisi");
   posSel.innerHTML = `<option value="">Semua</option>` + [...POSISI_SET].filter(Boolean).sort().map(p=>`<option value="${p}">${p}</option>`).join("");
-
-  // Default range: 7 hari terakhir
   const end = new Date(); const start = new Date(); start.setDate(end.getDate()-7);
-  document.getElementById("startDate").value = toYMD(start);
-  document.getElementById("endDate").value = toYMD(end);
+  document.getElementById("startDate").value = toYMD(start); document.getElementById("endDate").value = toYMD(end);
   document.getElementById("sort").value = "date-desc";
 }
 
 function computeGroups(){
-  // Group by key: nama|ymd
   const map = new Map();
-  for(const e of RAW){
-    const key = `${e.nama}||${e.ymd}`;
-    if(!map.has(key)) map.set(key, []);
-    map.get(key).push(e);
-  }
+  for(const e of RAW){ const key = `${e.nama}||${e.ymd}`; if(!map.has(key)) map.set(key, []); map.get(key).push(e);}
   GROUPED = [];
   for(const [key, arr] of map.entries()){
-    // status saat ini = event dengan jam terbesar (atau urutan input)
     arr.sort((a,b)=> (a.jam||"").localeCompare(b.jam||""));
-    const latest = arr[arr.length-1];
-    const [nama, ymd] = key.split("||");
-    GROUPED.push({
-      nama,
-      posisi: latest.posisi || arr[0].posisi || "",
-      ymd,
-      currentStatus: latest.status,
-      events: arr
-    });
+    const latest = arr[arr.length-1]; const [nama, ymd] = key.split("||");
+    GROUPED.push({ nama, posisi: latest.posisi || arr[0].posisi || "", ymd, currentStatus: latest.status, events: arr });
   }
 }
 
-/* =================== Rendering & Filters =================== */
 function applyFilters(){
   const sDate = document.getElementById("startDate").value;
   const eDate = document.getElementById("endDate").value;
@@ -358,24 +280,16 @@ function applyFilters(){
 
   let rows = GROUPED.slice();
 
-  // filter range
   if(sDate) rows = rows.filter(r => r.ymd >= sDate);
   if(eDate) rows = rows.filter(r => r.ymd <= eDate);
 
-  // filter bulan/tahun
   if(year)  rows = rows.filter(r => r.ymd.startsWith(year+"-"));
   if(month) rows = rows.filter(r => Number(r.ymd.slice(5,7)) === Number(month));
 
-  // filter status (berdasarkan status saat ini)
   if(status) rows = rows.filter(r => r.currentStatus === status);
-
-  // filter posisi
   if(posisi) rows = rows.filter(r => r.posisi === posisi);
-
-  // search nama
   if(q) rows = rows.filter(r => r.nama.toLowerCase().includes(q));
 
-  // sorting
   if(sort==="date-desc") rows.sort(compareByYMDDesc);
   else if(sort==="date-asc") rows.sort((a,b)=> -compareByYMDDesc(a,b));
   else if(sort==="name-asc") rows.sort((a,b)=> a.nama.localeCompare(b.nama));
@@ -416,7 +330,6 @@ function openDetail(group){
   title.textContent = `${group.nama} • ${group.posisi||"-"} • ${group.ymd}`;
   detail.innerHTML="";
 
-  // tampilkan semua event hari itu (urut jam ascending)
   const arr = group.events.slice().sort((a,b)=>(a.jam||"").localeCompare(b.jam||""));
   for(const e of arr){
     const row = document.createElement("div"); row.className="row";
@@ -443,14 +356,12 @@ document.getElementById("reset").addEventListener("click", ()=>{
   document.getElementById("posisi").value="";
   document.getElementById("search").value="";
   document.getElementById("sort").value="date-desc";
-  // reset ke 7 hari terakhir
   const end = new Date(); const start = new Date(); start.setDate(end.getDate()-7);
   document.getElementById("startDate").value = toYMD(start);
   document.getElementById("endDate").value = toYMD(end);
   render();
 });
 
-// render realtime saat filter berubah (opsional, enak dipakai)
 ["startDate","endDate","month","year","status","posisi","sort","search"].forEach(id=>{
   document.getElementById(id).addEventListener(id==="search"?"input":"change", render);
 });
@@ -459,4 +370,4 @@ document.getElementById("reset").addEventListener("click", ()=>{
 loadData();
 </script>
 </body>
-</html>
+  </html>
