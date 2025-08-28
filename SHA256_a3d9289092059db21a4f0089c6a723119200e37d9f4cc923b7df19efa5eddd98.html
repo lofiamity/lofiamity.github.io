@@ -191,6 +191,38 @@
   </div>
 
 <script>
+
+  (function() {
+  const PASSWORD = "11221122";
+  const STORAGE_KEY = "loginExpiry";
+
+  function askPassword() {
+    const input = prompt("Masukkan password untuk akses:");
+    if (input === PASSWORD) {
+      const expiry = Date.now() + 10 * 60 * 1000; // 10 menit
+      localStorage.setItem(STORAGE_KEY, expiry);
+      alert("Login berhasil!");
+    } else {
+      alert("Password salah!");
+      askPassword(); // ulangi sampai benar
+    }
+  }
+
+  function checkLogin() {
+    const expiry = localStorage.getItem(STORAGE_KEY);
+    if (!expiry || Date.now() > parseInt(expiry)) {
+      // kalau belum login / sudah lewat 10 menit
+      localStorage.removeItem(STORAGE_KEY);
+      askPassword();
+    } else {
+      alert("Sudah login, akses tersedia.");
+    }
+  }
+
+  // jalankan saat halaman dimuat
+  checkLogin();
+})();
+  
 /* ===================== CONFIG ===================== */
 const DATA_URL = "https://docs.google.com/spreadsheets/d/1aIvb1mm2xB_ZbXS0MgXGYDjV7j4mmicSlcU3bDfDLLc/gviz/tq?tqx=out:json&gid=0";
 
